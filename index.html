@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Video Loop</title>
+
+  <!-- Video.js CSS -->
+  <link
+    href="https://vjs.zencdn.net/8.23.4/video-js.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      cursor: none !important;
+    }
+
+    /* Video über den gesamten Bildschirm */
+    #video-container {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: #000;
+      cursor: none !important;
+    }
+
+    .video-js {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      background: #000;
+      cursor: none !important;
+      pointer-events: none;
+    }
+
+    /* Video vollständig ausfüllen */
+    .video-js .vjs-tech {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Sämtliche Video.js-Steuerelemente ausblenden */
+    .video-js .vjs-control-bar,
+    .video-js .vjs-big-play-button,
+    .video-js .vjs-loading-spinner,
+    .video-js .vjs-text-track-display,
+    .video-js .vjs-error-display,
+    .video-js .vjs-modal-dialog,
+    .video-js .vjs-control-dock {
+      display: none !important;
+    }
+
+    /* Auch bei Fokus keinen sichtbaren Cursor */
+    *:focus {
+      outline: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="video-container">
+    <video
+      id="loop-video"
+      class="video-js"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      disablepictureinpicture
+      disableremoteplayback
+    >
+      <source src="video.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Video.js JavaScript -->
+  <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
+
+  <script>
+    const player = videojs("loop-video", {
+      controls: false,
+      autoplay: true,
+      muted: true,
+      loop: true,
+      preload: "auto",
+      fluid: false,
+      responsive: false,
+      fill: true,
+      userActions: {
+        click: false,
+        doubleClick: false,
+        hotkeys: false
+      }
+    });
+
+    // Wiedergabe beim Laden starten
+    player.ready(function () {
+      this.muted(true);
+      this.loop(true);
+
+      const startPlayback = () => {
+        const result = this.play();
+
+        if (result && typeof result.catch === "function") {
+          result.catch((error) => {
+            console.warn(
+              "Autoplay wurde vom Browser verhindert:",
+              error
+            );
+          });
+        }
+      };
+
+      startPlayback();
+    });
+
+    // Kontextmenü und Tastaturinteraktion verhindern
+    document.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      event.preventDefault();
+    });
+
+    // Keine Scroll- oder Touch-Interaktion
+    document.addEventListener(
+      "touchmove",
+      (event) => event.preventDefault(),
+      { passive: false }
+    );
+  </script>
+</body>
+</html>
